@@ -2,6 +2,7 @@
 using Dev.Business.Interfaces;
 using Dev.Business.Models;
 using DevIO.Api.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -63,6 +64,8 @@ namespace DevIO.Api.Controllers
             return CustomResponse(produtoViewModel);
         }
 
+
+
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<ProdutoViewModel>> Excluir(Guid id)
         {
@@ -105,5 +108,60 @@ namespace DevIO.Api.Controllers
         {
             return _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
         }
+
+        #region UploadAlternativo
+        [HttpPost("adicionar")]
+        public async Task<ActionResult<ProdutoViewModel>> AdicionarAlternativo(ProdutoImagemViewModel produtoImagemViewModel)
+        {
+            if (!ModelState.IsValid)
+                return CustomResponse(ModelState);
+
+            var imagemPrefixo = Guid.NewGuid() + "_";
+
+            if (!await UploadArquivoAlternativo(produtoImagemViewModel.ImagemUpload, imagemPrefixo))
+            {
+                return CustomResponse(produtoImagemViewModel);
+            }
+
+            produtoImagemViewModel.Imagem = imagemPrefixo + produtoImagemViewModel.ImagemUpload.FileName;
+
+            await _produtoService.Adicionar(_mapper.Map<Produto>(produtoImagemViewModel));
+
+            return CustomResponse(produtoImagemViewModel);
+        }
+
+        private async Task<bool> UploadArquivoAlternativo(IFormFile arquivo, string imgPrefixo)
+        {
+            if (arquivo == null || arquivo.Length == 0)
+            {
+                NotificarErro("Forneça uma imagem para este produto!");
+
+                return false;
+            }
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgPrefixo + arquivo.FileName);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                NotificarErro("Já existe um arquivo com esse nome!");
+
+                return false;
+            }
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await arquivo.CopyToAsync(stream);
+            }
+
+            return true;
+        }
+
+        [RequestSizeLimit(400000000)]
+        [HttpPost("imagem")]
+        public ActionResult<ProdutoViewModel> AdicionarImagem(IFormFile file)
+        {
+            return Ok(file);
+        }
+        #endregion
     }
 }
