@@ -3,7 +3,6 @@ using Dev.Data.Context;
 using DevIO.Api.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,15 +27,7 @@ namespace DevIO.Api
             });
 
             services.AddAutoMapper(typeof(Startup));
-
-            services.AddControllers().AddNewtonsoftJson(opt =>
-            opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.SuppressModelStateInvalidFilter = true;
-            });
-
+            services.WebApiConfig();
             services.ResolveDependecies();
         }
 
@@ -47,16 +38,7 @@ namespace DevIO.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseMvcConfiguration();
         }
     }
 }
