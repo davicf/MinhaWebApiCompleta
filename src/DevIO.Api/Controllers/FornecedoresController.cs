@@ -2,6 +2,7 @@
 using Dev.Business.Interfaces;
 using Dev.Business.Models;
 using DevIO.Api.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace DevIO.Api.Controllers
 {
-    [Route("api/[controller]")] //usar [controller] pega o nome da classe oou seja Fornecedores
+    [Authorize]
+    [Route("api/[controller]")]
     public class FornecedoresController : MainController
     {
         private readonly IFornecedorRepository _fornecedorRepository;
@@ -29,13 +31,12 @@ namespace DevIO.Api.Controllers
             _enderecoRepository = enderecoRepository;
         }
 
-        // Poderia ser sem o ActionResult, com action result ele pode retorna algum code status 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FornecedorViewModel>>> ObterTodos()
         {
             var fornecedor = _mapper.Map<IEnumerable<FornecedorViewModel>>(await _fornecedorRepository.ObterTodos());
 
-            // caso não fosse action result retornaria somente o objeto sem o Ok
             return Ok(fornecedor);
         }
 
