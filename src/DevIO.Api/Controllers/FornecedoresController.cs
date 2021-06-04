@@ -3,6 +3,7 @@ using Dev.Business.Interfaces;
 using Dev.Business.Models;
 using DevIO.Api.Extensions;
 using DevIO.Api.ViewModels;
+using DevIO.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,7 +25,8 @@ namespace DevIO.Api.Controllers
                                       IMapper mapper,
                                       IFornecedorService fornecedorService,
                                       INotificador notificador,
-                                      IEnderecoRepository enderecoRepository) : base(notificador)
+                                      IEnderecoRepository enderecoRepository,
+                                      IUser user) : base(notificador, user)
         {
             _fornecedorRepository = fornecedorRepository;
             _mapper = mapper;

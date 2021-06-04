@@ -3,6 +3,7 @@ using Dev.Business.Interfaces;
 using Dev.Business.Models;
 using DevIO.Api.Extensions;
 using DevIO.Api.ViewModels;
+using DevIO.Business.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,7 +22,8 @@ namespace DevIO.Api.Controllers
         public ProdutosController(INotificador notificador,
                                   IProdutoRepository produtoRepository,
                                   IProdutoService produtoService,
-                                  IMapper mapper) : base(notificador)
+                                  IMapper mapper,
+                                  IUser user) : base(notificador, user)
         {
             _produtoRepository = produtoRepository;
             _produtoService = produtoService;
